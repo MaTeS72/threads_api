@@ -73,9 +73,14 @@ abstract class ThreadsMediaService {
     required String postId,
   });
 
-  Future<String> postThread({
+  Future<String> createThreadContainer({
     required String userId,
     required String text,
+  });
+
+  Future<String> postThread({
+    required String userId,
+    required String mediaContainerId,
   });
 }
 
@@ -130,7 +135,7 @@ class _ThreadsMediaService implements ThreadsMediaService {
   }
 
   @override
-  Future<String> postThread(
+  Future<String> createThreadContainer(
       {required String userId,
       required String text,
       String mediaType = 'TEXT'}) async {
@@ -140,6 +145,25 @@ class _ThreadsMediaService implements ThreadsMediaService {
           queryParameters: {
             'media_type': mediaType,
             'text': text,
+            'access_token': accessToken,
+          });
+
+      return response.data['id'];
+    } catch (e) {
+      throw Exception('Failed to get user Threads $e');
+    }
+  }
+
+  @override
+  Future<String> postThread({
+    required String userId,
+    required String mediaContainerId,
+  }) async {
+    try {
+      final response = await Dio().post(
+          'https://graph.threads.net/v1.0/$userId/threads_publish',
+          queryParameters: {
+            'creation_id': mediaContainerId,
             'access_token': accessToken,
           });
 
