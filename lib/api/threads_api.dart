@@ -75,7 +75,9 @@ abstract class ThreadsMediaService {
 
   Future<String> createThreadContainer({
     required String userId,
-    required String text,
+    String? text,
+    String? imageUrl,
+    String mediaType
   });
 
   Future<String> postThread({
