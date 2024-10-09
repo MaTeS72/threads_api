@@ -137,14 +137,17 @@ class _ThreadsMediaService implements ThreadsMediaService {
   @override
   Future<String> createThreadContainer(
       {required String userId,
-      required String text,
+      String? text,
+      String? imageUrl,
       String mediaType = 'TEXT'}) async {
+    assert(text != null || imageUrl != null);
     try {
       final response = await Dio().post(
           'https://graph.threads.net/v1.0/$userId/threads',
           queryParameters: {
             'media_type': mediaType,
             'text': text,
+            'image_url': imageUrl,
             'access_token': accessToken,
           });
 
