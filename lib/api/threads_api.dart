@@ -138,14 +138,14 @@ class _ThreadsMediaService implements ThreadsMediaService {
       final response = await Dio().post(
           'https://graph.threads.net/v1.0/$userId/threads',
           queryParameters: {
-            'mediaType': mediaType,
+            'media_type': mediaType,
             'text': text,
             'access_token': accessToken,
           });
 
       return response.data['id'];
     } catch (e) {
-      throw Exception('Failed to get user Threads');
+      throw Exception('Failed to get user Threads $e');
     }
   }
 }
