@@ -3,6 +3,7 @@
 // modification, are permitted provided the conditions.
 
 import 'package:flutter/material.dart';
+import 'package:threads_api/api/threads_api.dart';
 import 'package:threads_api/auth/scopes.dart';
 import 'package:threads_api/auth/threads_oauth2_client.dart';
 
@@ -19,6 +20,8 @@ class Example extends StatefulWidget {
 
 class _ExampleState extends State<Example> {
   late ThreadsOAuthClient client;
+
+  String? longLiveToken;
 
   @override
   void initState() {
@@ -43,10 +46,18 @@ class _ExampleState extends State<Example> {
       scopes: scopes,
     );
 
-    final longLiveToken =
-        await client.exchangeForLongLivedToken(shortLiveToken);
+    final token = await client.exchangeForLongLivedToken(shortLiveToken);
+    setState(() {
+      longLiveToken = token;
+    });
+  }
 
-    print(longLiveToken);
+  void getUserProfile() async {
+    final threadsApi = ThreadsApi(longLiveToken!);
+
+    final profile = await threadsApi.profile.getUserProfile(userId: 'me');
+
+    print('User Profile: $profile');
   }
 
   void refreshUserToken() async {
@@ -71,7 +82,14 @@ class _ExampleState extends State<Example> {
                   authenticateUser();
                 },
                 child: const Text('Push!'),
-              )
+              ),
+              if (longLiveToken != null)
+                ElevatedButton(
+                  onPressed: () async {
+                    getUserProfile();
+                  },
+                  child: const Text('Get profile data'),
+                )
             ],
           ),
         ),
