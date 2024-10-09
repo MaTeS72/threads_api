@@ -60,6 +60,14 @@ class _ExampleState extends State<Example> {
     print('User Profile: $profile');
   }
 
+  void getUserThreads() async {
+    final threadsApi = ThreadsApi(longLiveToken!);
+
+    final threads = await threadsApi.media.getUserThreads(userId: 'me');
+
+    print('User Threads: $threads');
+  }
+
   void refreshUserToken() async {
     const refreshToken =
         'EXISTING_REFRESH_TOKEN'; // Use the saved refresh token
@@ -89,6 +97,13 @@ class _ExampleState extends State<Example> {
                     getUserProfile();
                   },
                   child: const Text('Get profile data'),
+                ),
+              if (longLiveToken != null)
+                ElevatedButton(
+                  onPressed: () async {
+                    getUserThreads();
+                  },
+                  child: const Text('Get user threads'),
                 )
             ],
           ),
