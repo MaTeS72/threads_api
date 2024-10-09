@@ -32,14 +32,14 @@ class _ExampleState extends State<Example> {
       clientId: '1595607288056648', // Replace with your app's client ID
       clientSecret:
           '3f03e02970aae4df6d2c73f1f978b64c', // Replace with your app's client secret
-      redirectUri: 'https://threads-redirect-test.web.app/example',
+      redirectUri: 'https://threads-redirect-test.web.app/testik',
     );
   }
 
   void authenticateUser() async {
     final scopes = [
+      Scope.threadsContentPublish,
       Scope.threadsBasic,
-      // Scope.threadsContentPublish,
     ]; // Threads API scopes
     final shortLiveToken = await client.authenticate(
       callbackUrlScheme: 'com.example.oauth', // Your app's custom scheme

@@ -34,7 +34,7 @@ class ThreadsOAuthClient {
       'client_id': clientId, // The client ID of the application
       'redirect_uri': redirectUri, // The URI to redirect after login
       'scope':
-          scopes.map((scope) => scope.value).join(' '), // Join scopes by space
+          scopes.map((scope) => scope.value).join(','), // Join scopes by space
       'state': '1', // A CSRF protection mechanism, static for now
     };
 
