@@ -90,7 +90,7 @@ class _ThreadsMediaService implements ThreadsMediaService {
           'https://graph.threads.net/v1.0/$userId/threads',
           queryParameters: {
             'fields':
-                'id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post',
+                'id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post,quote_post_id',
             'access_token': accessToken,
           });
 
