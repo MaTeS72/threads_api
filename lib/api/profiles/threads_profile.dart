@@ -8,6 +8,10 @@ abstract class ThreadsProfileService {
   Future<ProfileInfo> getUserProfile({
     required String userId,
   });
+
+   Future<Map<String,dynamic>> getProfileInsights({
+    required String userId,
+  });
 }
 
 class _ThreadsProfileService extends BaseService implements ThreadsProfileService {
@@ -33,4 +37,23 @@ class _ThreadsProfileService extends BaseService implements ThreadsProfileServic
       throw Exception('Failed to get user profile');
     }
   }
+
+  @override
+  Future<Map<String,dynamic>> getProfileInsights({
+    required String userId,
+  }) async {
+    try {
+      final response = await super
+          .get('https://graph.threads.net/v1.0/$userId/threads_insights', queryParameters: {
+        'metric':
+            'followers_count',
+      });
+
+      return response.data;
+    } catch (e) {
+      throw Exception('Failed to get user profile insights');
+    }
+  }
+
+
 }
