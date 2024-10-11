@@ -22,17 +22,16 @@ class _ExampleState extends State<Example> {
   late ThreadsOAuthClient client;
 
   String? longLiveToken;
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
     client = ThreadsOAuthClient(
-      clientId: '1595607288056648', // Replace with your app's client ID
+      clientId: 'XXXXXXXXXXXX', // Replace with your app's client ID
       clientSecret:
-          '3f03e02970aae4df6d2c73f1f978b64c', // Replace with your app's client secret
-      redirectUri: 'https://threads-redirect-test.web.app/testik',
+          'XXXXXXXXXXXXXXXXXXXXXXXX', // Replace with your app's client secret
+      redirectUri: 'com.example.oauth/redirect', // Your app's custom scheme
     );
   }
 
@@ -54,7 +53,6 @@ class _ExampleState extends State<Example> {
 
   void getUserProfile() async {
     final threadsApi = ThreadsApi(longLiveToken!);
-
     final profile = await threadsApi.profile.getUserProfile(userId: 'me');
 
     print('User Profile: $profile');
