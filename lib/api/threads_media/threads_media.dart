@@ -20,6 +20,7 @@ abstract class ThreadsMediaService {
     required String userId,
     String? text,
     String? imageUrl,
+    String? inReplyToId,
     String mediaType,
   });
 
@@ -65,7 +66,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
           .map<MediaPost>((thread) => MediaPost.fromJson(thread))
           .toList();
     } catch (e) {
-      throw Exception('Failed to get user Threads');
+      throw Exception('Failed to get user Threads $e');
     }
   }
 
@@ -84,7 +85,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
 
       return data;
     } catch (e) {
-      throw Exception('Failed to get Thread post');
+      throw Exception('Failed to get Thread post $e');
     }
   }
 
@@ -93,6 +94,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       {required String userId,
       String? text,
       String? imageUrl,
+      String? inReplyToId,
       String mediaType = 'TEXT'}) async {
     assert(text != null || imageUrl != null);
     try {
@@ -102,11 +104,12 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
             'media_type': mediaType,
             'text': text,
             'image_url': imageUrl,
+            'reply_to_id': inReplyToId,
           });
 
       return response.data['id'];
     } catch (e) {
-      throw Exception('Failed to get user Threads $e');
+      throw Exception('Failed to post container $e');
     }
   }
 
@@ -124,7 +127,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
 
       return response.data['id'];
     } catch (e) {
-      throw Exception('Failed to get user Threads $e');
+      throw Exception('Failed to post Thread $e');
     }
   }
 
@@ -145,7 +148,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
           .map<MediaPost>((reply) => MediaPost.fromJson(reply))
           .toList();
     } catch (e) {
-      throw Exception('Failed to fetch replies');
+      throw Exception('Failed to fetch replies $e');
     }
   }
 
@@ -166,7 +169,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
           .map<MediaPost>((conversation) => MediaPost.fromJson(conversation))
           .toList();
     } catch (e) {
-      throw Exception('Failed to fetch conversations');
+      throw Exception('Failed to fetch conversations $e');
     }
   }
 
@@ -195,7 +198,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
 
       return insightsMap;
     } catch (e) {
-      throw Exception('Failed to get media insights');
+      throw Exception('Failed to get media insights $e');
     }
   }
 }
