@@ -170,7 +170,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       final response = await super.get(
           'https://graph.threads.net/v1.0/$postId/insights',
           queryParameters: {
-            'metric': 'likes,reposts,comments,quotes',
+            'metric': 'likes,reposts,replies',
           });
 
       return response.data;
