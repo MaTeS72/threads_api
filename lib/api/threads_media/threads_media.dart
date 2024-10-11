@@ -182,9 +182,20 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
             'metric': getMediaInsightFieldsParam(fields),
           });
 
-      return response.data;
+      final insights = response.data['data'] as List<dynamic>;
+
+      // Process the insights to create the desired map
+      final Map<String, dynamic> insightsMap = {};
+
+      for (var insight in insights) {
+        final String name = insight['name'];
+        final int value = insight['values'][0]['value'];
+        insightsMap[name] = value;
+      }
+
+      return insightsMap;
     } catch (e) {
-      throw Exception('Failed to get user profile insights');
+      throw Exception('Failed to get media insights');
     }
   }
 }
