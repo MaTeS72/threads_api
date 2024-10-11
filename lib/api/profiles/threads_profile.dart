@@ -1,4 +1,5 @@
 import 'package:threads_api/api/base_service.dart';
+import 'package:threads_api/api/models/fields.dart';
 import 'package:threads_api/api/models/media_post.dart';
 import 'package:threads_api/api/models/profile_info.dart';
 
@@ -8,14 +9,17 @@ abstract class ThreadsProfileService {
 
   Future<ProfileInfo> getUserProfile({
     required String userId,
+    List<ProfileFields>? fields,
   });
 
   Future<Map<String, dynamic>> getProfileInsights({
     required String userId,
+    List<ProfileInsightFields>? fields,
   });
 
   Future<List<MediaPost>> getUserReplies({
     required String userId,
+    List<MediaFields>? fields,
   });
 }
 
@@ -28,12 +32,12 @@ class _ThreadsProfileService extends BaseService
   @override
   Future<ProfileInfo> getUserProfile({
     required String userId,
+    List<ProfileFields>? fields,
   }) async {
     try {
       final response = await super
           .get('https://graph.threads.net/v1.0/$userId', queryParameters: {
-        'fields':
-            'id,username,name,threads_profile_picture_url,threads_biography',
+        'fields': getProfileFieldsParam(fields),
       });
 
       return ProfileInfo.fromJson(response.data);
@@ -45,12 +49,13 @@ class _ThreadsProfileService extends BaseService
   @override
   Future<Map<String, dynamic>> getProfileInsights({
     required String userId,
+    List<ProfileInsightFields>? fields,
   }) async {
     try {
       final response = await super.get(
           'https://graph.threads.net/v1.0/$userId/threads_insights',
           queryParameters: {
-            'metric': 'followers_count',
+            'metric': getUserInsightFieldsParam(fields),
           });
 
       return response.data;
@@ -62,15 +67,13 @@ class _ThreadsProfileService extends BaseService
   @override
   Future<List<MediaPost>> getUserReplies({
     required String userId,
+    List<MediaFields>? fields,
   }) async {
     try {
       final response = await super.get(
         'https://graph.threads.net/v1.0/$userId/replies',
         queryParameters: {
-          'fields': 'id,text,username,permalink,timestamp,media_product_type,'
-              'media_type,media_url,shortcode,thumbnail_url,children,'
-              'is_quote_post,has_replies,root_post,replied_to,is_reply,'
-              'is_reply_owned_by_me,reply_audience',
+          'fields': getFieldsParam(fields),
         },
       );
 

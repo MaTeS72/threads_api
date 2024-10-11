@@ -12,7 +12,7 @@ abstract class ThreadsApi {
 class _ThreadsApi implements ThreadsApi {
   final String accessToken;
 
-  _ThreadsApi(this. accessToken)
+  _ThreadsApi(this.accessToken)
       : profile = ThreadsProfileService(accessToken: accessToken),
         media = ThreadsMediaService(accessToken: accessToken);
 

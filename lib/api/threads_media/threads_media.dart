@@ -1,4 +1,5 @@
 import 'package:threads_api/api/base_service.dart';
+import 'package:threads_api/api/models/fields.dart';
 import 'package:threads_api/api/models/media_post.dart';
 
 abstract class ThreadsMediaService {
@@ -7,10 +8,12 @@ abstract class ThreadsMediaService {
 
   Future<List<MediaPost>> getUserThreads({
     required String userId,
+    List<MediaFields>? fields,
   });
 
   Future<MediaPost> getThreadById({
     required String postId,
+    List<MediaFields>? fields,
   });
 
   Future<String> createThreadContainer({
@@ -27,14 +30,17 @@ abstract class ThreadsMediaService {
 
   Future<List<MediaPost>> getReplies({
     required String postId,
+    List<MediaFields>? fields,
   });
 
   Future<List<MediaPost>> getConversations({
     required String postId,
+    List<MediaFields>? fields,
   });
 
   Future<Map<String, dynamic>> getMediaInsights({
     required String postId,
+    List<MediaInsightFields>? fields,
   });
 }
 
@@ -46,13 +52,13 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   @override
   Future<List<MediaPost>> getUserThreads({
     required String userId,
+    List<MediaFields>? fields,
   }) async {
     try {
       final response = await super.get(
           'https://graph.threads.net/v1.0/$userId/threads',
           queryParameters: {
-            'fields':
-                'id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post,quote_post_id',
+            'fields': getFieldsParam(fields),
           });
 
       return response.data['data']
@@ -66,12 +72,12 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   @override
   Future<MediaPost> getThreadById({
     required String postId,
+    List<MediaFields>? fields,
   }) async {
     try {
       final response = await super
           .get('https://graph.threads.net/v1.0/$postId', queryParameters: {
-        'fields':
-            'id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post',
+        'fields': getFieldsParam(fields),
       });
 
       final data = MediaPost.fromJson(response.data);
@@ -125,14 +131,15 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   @override
   Future<List<MediaPost>> getReplies({
     required String postId,
+    List<MediaFields>? fields, // Optional fields parameter
   }) async {
     try {
       final response = await super.get(
-          'https://graph.threads.net/v1.0/$postId/replies',
-          queryParameters: {
-            'fields':
-                'id,media_type,media_url,permalink,owner,text,timestamp,children',
-          });
+        'https://graph.threads.net/v1.0/$postId/replies',
+        queryParameters: {
+          'fields': getFieldsParam(fields),
+        },
+      );
 
       return response.data['data']
           .map<MediaPost>((reply) => MediaPost.fromJson(reply))
@@ -145,14 +152,15 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   @override
   Future<List<MediaPost>> getConversations({
     required String postId,
+    List<MediaFields>? fields, // Optional fields parameter
   }) async {
     try {
       final response = await super.get(
-          'https://graph.threads.net/v1.0/$postId/conversations',
-          queryParameters: {
-            'fields':
-                'id,media_type,media_url,permalink,owner,text,timestamp,children',
-          });
+        'https://graph.threads.net/v1.0/$postId/conversations',
+        queryParameters: {
+          'fields': getFieldsParam(fields),
+        },
+      );
 
       return response.data['data']
           .map<MediaPost>((conversation) => MediaPost.fromJson(conversation))
@@ -165,12 +173,13 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   @override
   Future<Map<String, dynamic>> getMediaInsights({
     required String postId,
+    List<MediaInsightFields>? fields,
   }) async {
     try {
       final response = await super.get(
           'https://graph.threads.net/v1.0/$postId/insights',
           queryParameters: {
-            'metric': 'likes,reposts,replies',
+            'metric': getMediaInsightFieldsParam(fields),
           });
 
       return response.data;
