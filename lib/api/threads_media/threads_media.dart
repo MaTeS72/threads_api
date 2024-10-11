@@ -13,15 +13,28 @@ abstract class ThreadsMediaService {
     required String postId,
   });
 
-  Future<String> createThreadContainer(
-      {required String userId,
-      String? text,
-      String? imageUrl,
-      String mediaType});
+  Future<String> createThreadContainer({
+    required String userId,
+    String? text,
+    String? imageUrl,
+    String mediaType,
+  });
 
   Future<String> postThread({
     required String userId,
     required String mediaContainerId,
+  });
+
+  Future<List<MediaPost>> getReplies({
+    required String postId,
+  });
+
+  Future<List<MediaPost>> getConversations({
+    required String postId,
+  });
+
+  Future<Map<String, dynamic>> getMediaInsights({
+    required String postId,
   });
 }
 
@@ -106,6 +119,63 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       return response.data['id'];
     } catch (e) {
       throw Exception('Failed to get user Threads $e');
+    }
+  }
+
+  @override
+  Future<List<MediaPost>> getReplies({
+    required String postId,
+  }) async {
+    try {
+      final response = await super.get(
+          'https://graph.threads.net/v1.0/$postId/replies',
+          queryParameters: {
+            'fields':
+                'id,media_type,media_url,permalink,owner,text,timestamp,children',
+          });
+
+      return response.data['data']
+          .map<MediaPost>((reply) => MediaPost.fromJson(reply))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch replies');
+    }
+  }
+
+  @override
+  Future<List<MediaPost>> getConversations({
+    required String postId,
+  }) async {
+    try {
+      final response = await super.get(
+          'https://graph.threads.net/v1.0/$postId/conversations',
+          queryParameters: {
+            'fields':
+                'id,media_type,media_url,permalink,owner,text,timestamp,children',
+          });
+
+      return response.data['data']
+          .map<MediaPost>((conversation) => MediaPost.fromJson(conversation))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch conversations');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getMediaInsights({
+    required String postId,
+  }) async {
+    try {
+      final response = await super.get(
+          'https://graph.threads.net/v1.0/$postId/insights',
+          queryParameters: {
+            'metric': 'likes,reposts,comments,quotes',
+          });
+
+      return response.data;
+    } catch (e) {
+      throw Exception('Failed to get user profile insights');
     }
   }
 }
