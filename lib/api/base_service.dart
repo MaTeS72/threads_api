@@ -78,7 +78,8 @@ class ServiceHelper {
         unencodedPath,
         queryParameters: queryParameters.isEmpty
             ? {'access_token': accessToken}
-            : queryParameters,
+            : queryParameters
+          ..addAll({'access_token': accessToken}),
         data: body,
       );
 
