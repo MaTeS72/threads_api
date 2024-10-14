@@ -1,7 +1,7 @@
 name: threads_api
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+publish_to: none
 
 environment:
   sdk: ^3.5.1
@@ -14,7 +14,10 @@ dependencies:
   oauth2: ^2.0.3
   dio: ^5.7.0
   url_launcher: ^6.0.20
-  flutter_web_auth_2: ^4.0.1
+  flutter_web_auth_2:
+    git:
+      url: https://github.com/SedlarDavid/flutter_web_auth_2.git
+      path: flutter_web_auth_2/
 
 dev_dependencies:
   flutter_test:

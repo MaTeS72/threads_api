@@ -55,6 +55,7 @@ class ThreadsOAuthClient {
   Future<String> authenticate({
     required String callbackUrlScheme,
     required List<Scope> scopes,
+    bool? preferEphemeral = false,
   }) async {
     // Get the authorization URL for the user to visit
     final authUrl = getAuthorizationUrl(scopes);
@@ -62,7 +63,10 @@ class ThreadsOAuthClient {
     // Open the authorization page in a browser and listen for redirect
     final result = await FlutterWebAuth2.authenticate(
       url: authUrl.toString(),
-      options: const FlutterWebAuth2Options(intentFlags: ephemeralIntentFlags),
+      options: FlutterWebAuth2Options(
+        intentFlags: ephemeralIntentFlags,
+        preferEphemeral: preferEphemeral,
+      ),
       callbackUrlScheme: callbackUrlScheme,
     );
 
