@@ -22,6 +22,8 @@ abstract class ThreadsMediaService {
     String? imageUrl,
     String? inReplyToId,
     String mediaType,
+    bool isCarouselItem,
+    List<String>? children,
   });
 
   Future<String> postThread({
@@ -95,7 +97,9 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       String? text,
       String? imageUrl,
       String? inReplyToId,
-      String mediaType = 'TEXT'}) async {
+      String mediaType = 'TEXT',
+      bool? isCarouselItem,
+      List<String>? children}) async {
     assert(text != null || imageUrl != null);
     try {
       final response = await super.post(
@@ -105,6 +109,8 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
             'text': text,
             'image_url': imageUrl,
             'reply_to_id': inReplyToId,
+            'is_carousel_item': isCarouselItem,
+            'children': children?.join(',')
           });
 
       return response.data['id'];
