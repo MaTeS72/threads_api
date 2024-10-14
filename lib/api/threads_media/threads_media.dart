@@ -165,7 +165,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   }) async {
     try {
       final response = await super.get(
-        'https://graph.threads.net/v1.0/$postId/conversations',
+        'https://graph.threads.net/v1.0/$postId/conversation',
         queryParameters: {
           'fields': getFieldsParam(fields),
         },
