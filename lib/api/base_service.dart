@@ -56,7 +56,10 @@ class ServiceHelper {
     try {
       final response = Dio().get(
         unencodedPath,
-        queryParameters: queryParameters..addAll({'access_token': accessToken}),
+        queryParameters: queryParameters.isEmpty
+            ? {'access_token': accessToken}
+            : queryParameters
+          ..addAll({'access_token': accessToken}),
       );
 
       return response;
@@ -73,7 +76,9 @@ class ServiceHelper {
     try {
       final response = Dio().post(
         unencodedPath,
-        queryParameters: queryParameters..addAll({'access_token': accessToken}),
+        queryParameters: queryParameters.isEmpty
+            ? {'access_token': accessToken}
+            : queryParameters,
         data: body,
       );
 

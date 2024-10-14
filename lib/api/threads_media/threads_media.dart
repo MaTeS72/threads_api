@@ -21,6 +21,7 @@ abstract class ThreadsMediaService {
     String? text,
     String? imageUrl,
     String? inReplyToId,
+    String? quotePostId,
     String mediaType,
     bool isCarouselItem,
     List<String>? children,
@@ -29,6 +30,10 @@ abstract class ThreadsMediaService {
   Future<String> postThread({
     required String userId,
     required String mediaContainerId,
+  });
+
+  Future<String> repostThread({
+    required String postId,
   });
 
   Future<List<MediaPost>> getReplies({
@@ -98,6 +103,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       String? imageUrl,
       String? inReplyToId,
       String mediaType = 'TEXT',
+      String? quotePostId,
       bool? isCarouselItem,
       List<String>? children}) async {
     assert(text != null || imageUrl != null);
@@ -108,6 +114,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
             'media_type': mediaType,
             'text': text,
             'image_url': imageUrl,
+            'quote_post_id': quotePostId,
             'reply_to_id': inReplyToId,
             'is_carousel_item': isCarouselItem,
             'children': children?.join(',')
@@ -130,6 +137,21 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
           queryParameters: {
             'creation_id': mediaContainerId,
           });
+
+      return response.data['id'];
+    } catch (e) {
+      throw Exception('Failed to post Thread $e');
+    }
+  }
+
+  @override
+  Future<String> repostThread({
+    required String postId,
+  }) async {
+    try {
+      final response = await super.post(
+        'https://graph.threads.net/v1.0/$postId/repost',
+      );
 
       return response.data['id'];
     } catch (e) {
