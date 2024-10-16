@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import 'package:threads_api/auth/long_live_token_response.dart';
 import 'package:threads_api/auth/scopes.dart';
 
 /// This class is responsible for handling OAuth 2.0 authentication
@@ -120,24 +121,27 @@ class ThreadsOAuthClient {
   /// - `refreshToken`: The refresh token provided with the initial token response.
   ///
   /// Returns a new access token.
-  Future<Map<String, dynamic>> refreshAccessToken(String refreshToken) async {
+  Future<LongLivedTokenResponse> refreshAccessToken(String refreshToken) async {
     // Make a GET request to refresh the access token using the refresh token
-    final response = await _dio.get(
-      'https://graph.threads.net/refresh_access_token',
-      queryParameters: {
-        'grant_type':
-            'refresh_token', // OAuth 2.0 grant type for refresh tokens
-        'refresh_token': refreshToken, // The refresh token to use
-        'client_id': clientId, // The client ID of the app
-        'client_secret': clientSecret, // The client secret of the app
-      },
-    );
+    try {
+      final response = await _dio.get(
+        'https://graph.threads.net/refresh_access_token',
+        queryParameters: {
+          'grant_type':
+              'th_refresh_token', // OAuth 2.0 grant type for refresh tokens
+          'access_token': refreshToken, // The access token to use
+        },
+      );
 
-    // Check if the response was successful (HTTP 200)
-    if (response.statusCode == 200) {
-      return response.data; // Return the new access token
-    } else {
-      throw Exception('Failed to refresh access token'); // Handle errors
+      // Check if the response was successful (HTTP 200)
+      if (response.statusCode == 200) {
+        // Parse the response data into a LongLivedTokenResponse object
+        return LongLivedTokenResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to refresh access token');
+      }
+    } catch (e) {
+      throw Exception('Failed to refresh access token $e');
     }
   }
 
@@ -147,7 +151,8 @@ class ThreadsOAuthClient {
   ///   user authorizes the app.
   ///
   /// Returns a map containing the long-lived access token and additional data.
-  Future<String> exchangeForLongLivedToken(String shortLivedToken) async {
+  Future<LongLivedTokenResponse> exchangeForLongLivedToken(
+      String shortLivedToken) async {
     // Make a GET request to exchange the short-lived token for a long-lived token
     final response = await _dio.get(
       'https://graph.threads.net/access_token',
@@ -161,11 +166,10 @@ class ThreadsOAuthClient {
 
     // Check if the response was successful (HTTP 200)
     if (response.statusCode == 200) {
-      return (response.data as Map<String, dynamic>)[
-          'access_token']; // Return the long-lived access token
+      // Parse the response data into a LongLivedTokenResponse object
+      return LongLivedTokenResponse.fromJson(response.data);
     } else {
-      throw Exception(
-          'Failed to exchange for long-lived token'); // Handle errors
+      throw Exception('Failed to exchange token');
     }
   }
 }
