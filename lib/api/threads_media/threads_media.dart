@@ -1,6 +1,7 @@
 import 'package:threads_api/api/base_service.dart';
 import 'package:threads_api/api/models/fields.dart';
 import 'package:threads_api/api/models/media_post.dart';
+import 'package:threads_api/api/models/media_type.dart';
 
 abstract class ThreadsMediaService {
   factory ThreadsMediaService({required String accessToken}) =>
@@ -22,7 +23,7 @@ abstract class ThreadsMediaService {
     String? imageUrl,
     String? inReplyToId,
     String? quotePostId,
-    String mediaType,
+    MediaType mediaType,
     bool isCarouselItem,
     List<String>? children,
   });
@@ -102,7 +103,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       String? text,
       String? imageUrl,
       String? inReplyToId,
-      String mediaType = 'TEXT',
+      MediaType mediaType = MediaType.textPost,
       String? quotePostId,
       bool? isCarouselItem,
       List<String>? children}) async {
@@ -111,7 +112,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       final response = await super.post(
           'https://graph.threads.net/v1.0/$userId/threads',
           queryParameters: {
-            'media_type': mediaType,
+            'media_type': mediaType.postName,
             'text': text,
             'image_url': imageUrl,
             'quote_post_id': quotePostId,

@@ -1,7 +1,9 @@
+import 'package:threads_api/api/models/media_type.dart';
+
 class MediaPost {
   final String id;
   final String mediaProductType;
-  final String mediaType;
+  final MediaType mediaType;
   final String? mediaUrl;
   final String permalink;
   final Map<String, dynamic> owner;
@@ -46,7 +48,7 @@ class MediaPost {
     return MediaPost(
       id: json['id'] ?? '',
       mediaProductType: json['media_product_type'] ?? 'THREADS',
-      mediaType: json['media_type'] ?? 'TEXT_POST',
+      mediaType: mediaTypeFromString(json['media_type']),
       mediaUrl: json['media_url'],
       permalink: json['permalink'] ?? '',
       owner: json['owner'] ?? {},
@@ -71,7 +73,7 @@ class MediaPost {
     return {
       'id': id,
       'media_product_type': mediaProductType,
-      'media_type': mediaType,
+      'media_type': mediaType.receiveName,
       'media_url': mediaUrl,
       'permalink': permalink,
       'owner': owner,
