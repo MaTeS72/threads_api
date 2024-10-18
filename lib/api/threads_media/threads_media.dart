@@ -1,5 +1,6 @@
 import 'package:threads_api/api/base_service.dart';
 import 'package:threads_api/api/models/fields.dart';
+import 'package:threads_api/api/models/media_insights.dart';
 import 'package:threads_api/api/models/media_post.dart';
 import 'package:threads_api/api/models/media_type.dart';
 
@@ -271,49 +272,23 @@ abstract class ThreadsMediaService {
     List<MediaFields>? fields,
   });
 
-  /// Retrieves media insights for a specific thread (post) by its unique post ID.
+  /// Retrieves media insights for a post by its ID.
   ///
-  /// This method fetches various engagement metrics, such as views, likes,
-  /// replies, reposts, and quotes, for a given post. Optionally, you can specify
-  /// which insights to retrieve by providing a list of `MediaInsightFields`.
+  /// Fetches metrics like views, likes, replies, reposts, and quotes. You can
+  /// specify which metrics to retrieve using the `fields` parameter. If no fields
+  /// are provided, default metrics are fetched.
   ///
-  /// ## Parameters:
-  /// - `postId` (required): The unique identifier of the thread (post)
-  ///   for which media insights are being requested.
-  /// - `fields` (optional): A list of `MediaInsightFields` to define which
-  ///   specific insights to retrieve. If no fields are provided, a default set
-  ///   of metrics will be returned.
+  /// Parameters:
+  /// - `postId` (required): The unique identifier of the post.
+  /// - `fields` (optional): A list of `MediaInsightFields` to specify which metrics to fetch.
   ///
-  /// ## Returns:
-  /// - A `Future` that resolves to a `Map<String, dynamic>` where the keys
-  ///   are the insight field names (e.g., `views`, `likes`) and the values
-  ///   are the corresponding metric values.
+  /// Returns:
+  /// - A `Future` that resolves to a list of `MediaInsight` objects.
   ///
-  /// ## Errors:
-  /// - Throws an `Exception` if the API request fails or if an error occurs
-  ///   while processing the response.
-  ///
-  /// ## API Reference:
-  /// - [Get Media Insights](https://developers.facebook.com/docs/threads/insights)
-  ///
-  /// Example usage:
-  /// ```dart
-  /// final insights = await threadsMediaService.getMediaInsights(
-  ///   postId: '1234567890',
-  ///   fields: [MediaInsightFields.views, MediaInsightFields.likes],
-  /// );
-  /// ```
-  ///
-  /// Example returned map:
-  /// ```dart
-  /// {
-  ///   'views': 1500,
-  ///   'likes': 500,
-  ///   'replies': 30,
-  /// }
-  /// ```
+  /// Throws:
+  /// - An `Exception` if the API request fails.
 
-  Future<Map<String, dynamic>> getMediaInsights({
+  Future<List<MediaInsight>> getMediaInsights({
     required String postId,
     List<MediaInsightFields>? fields,
   });
@@ -427,7 +402,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   @override
   Future<List<MediaPost>> getReplies({
     required String postId,
-    List<MediaFields>? fields, // Optional fields parameter
+    List<MediaFields>? fields,
   }) async {
     try {
       final response = await super.get(
@@ -448,7 +423,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   @override
   Future<List<MediaPost>> getConversations({
     required String postId,
-    List<MediaFields>? fields, // Optional fields parameter
+    List<MediaFields>? fields,
   }) async {
     try {
       final response = await super.get(
@@ -467,7 +442,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   }
 
   @override
-  Future<Map<String, dynamic>> getMediaInsights({
+  Future<List<MediaInsight>> getMediaInsights({
     required String postId,
     List<MediaInsightFields>? fields,
   }) async {
@@ -480,16 +455,9 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
 
       final insights = response.data['data'] as List<dynamic>;
 
-      // Process the insights to create the desired map
-      final Map<String, dynamic> insightsMap = {};
-
-      for (var insight in insights) {
-        final String name = insight['name'];
-        final int value = insight['values'][0]['value'];
-        insightsMap[name] = value;
-      }
-
-      return insightsMap;
+      return insights
+          .map<MediaInsight>((insight) => MediaInsight.fromJson(insight))
+          .toList();
     } catch (e) {
       throw Exception('Failed to get media insights $e');
     }
