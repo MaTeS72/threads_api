@@ -7,15 +7,121 @@ abstract class ThreadsMediaService {
   factory ThreadsMediaService({required String accessToken}) =>
       _ThreadsMediaService(accessToken: accessToken);
 
+  /// Retrieves a list of media posts (threads) created by a user.
+  ///
+  /// This method fetches the threads for a given user based on their `userId`.
+  /// Optionally, you can pass a list of fields to specify which data should be
+  /// included in the response.
+  ///
+  /// ## Parameters:
+  /// - `userId` (required): The unique identifier of the user whose threads
+  ///   are being requested.
+  /// - `fields` (optional): A list of `MediaFields` that defines specific
+  ///   fields to be included in the response. If no fields are specified,
+  ///   the API will return a default set of fields.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a list of `MediaPost` objects, representing
+  ///   the threads posted by the user.
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while parsing the response.
+  ///
+  /// ## API Reference:
+  /// - [Get User Threads](https://developers.facebook.com/docs/threads/threads-media#get-user-threads)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final threads = await threadsMediaService.getUserThreads(
+  ///   userId: '1234567890',
+  ///   fields: [MediaFields.id, MediaFields.mediaType, MediaFields.text],
+  /// );
+  /// ```
   Future<List<MediaPost>> getUserThreads({
     required String userId,
     List<MediaFields>? fields,
   });
 
+  /// Retrieves a single media post (thread) by its unique post ID.
+  ///
+  /// This method fetches a specific thread using its `postId`. Optionally,
+  /// you can pass a list of fields to specify which data should be included
+  /// in the response.
+  ///
+  /// ## Parameters:
+  /// - `postId` (required): The unique identifier of the thread (post)
+  ///   being requested.
+  /// - `fields` (optional): A list of `MediaFields` to define specific
+  ///   fields that should be included in the response. If no fields are
+  ///   specified, the API will return a default set of fields.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a `MediaPost` object, representing the
+  ///   details of the requested thread.
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while parsing the response.
+  ///
+  /// ## API Reference:
+  /// - [Retrieve a Single Thread's Media Object](https://developers.facebook.com/docs/threads/threads-media#retrieve-a-single-threads-media-object)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final thread = await threadsMediaService.getThreadById(
+  ///   postId: '9876543210',
+  ///   fields: [MediaFields.id, MediaFields.mediaType],
+  /// );
+  /// ```
   Future<MediaPost> getThreadById({
     required String postId,
     List<MediaFields>? fields,
   });
+
+  /// Creates a container for a new media post (thread) on behalf of a user.
+  ///
+  /// This method is the first step in creating a post on Threads. It generates
+  /// a container that holds the content of the post, such as text, media (e.g.,
+  /// images or videos), and other related data. You can optionally reply to
+  /// another thread or quote a post.
+  ///
+  /// ## Parameters:
+  /// - `userId` (required): The unique identifier of the user for whom the
+  ///   thread container is being created.
+  /// - `text` (optional): The textual content of the thread.
+  /// - `imageUrl` (optional): The URL of the image to include in the thread.
+  ///   This field is required if the post includes media content.
+  /// - `inReplyToId` (optional): The ID of the thread that this post is replying to.
+  /// - `quotePostId` (optional): The ID of the post being quoted.
+  /// - `mediaType` (required): The type of media included in the post (e.g.,
+  ///   text, image, video). Defaults to `MediaType.textPost`.
+  /// - `isCarouselItem` (optional): Indicates whether the post is part of a
+  ///   carousel item (multiple images/videos in a single post).
+  /// - `children` (optional): A list of child media container IDs if the container is part of
+  ///   a carousel of posts.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a `String`, representing the ID of the
+  ///   created container.
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while processing the response.
+  ///
+  /// ## API Reference:
+  /// - [Create a Container for a Post](https://developers.facebook.com/docs/threads/posts#create-container)
+  /// - [Quote a Post](https://developers.facebook.com/docs/threads/posts/quote-posts)
+  /// - [Reply to Post](https://developers.facebook.com/docs/threads/reply-management#respond-to-replies)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final containerId = await threadsMediaService.createThreadContainer(
+  ///   userId: '1234567890',
+  ///   text: 'This is a new post!',
+  ///   mediaType: MediaType.textPost,
+  /// );
+  /// ```
 
   Future<String> createThreadContainer({
     required String userId,
@@ -28,24 +134,184 @@ abstract class ThreadsMediaService {
     List<String>? children,
   });
 
+  /// Publishes a media post (thread) using a previously created container.
+  ///
+  /// This method is the second step in creating a post on Threads. After a
+  /// container is created using the `createThreadContainer` method, you use
+  /// this function to publish the post. The `mediaContainerId` is required to
+  /// finalize and publish the post.
+  ///
+  /// ## Parameters:
+  /// - `userId` (required): The unique identifier of the user who is publishing
+  ///   the thread.
+  /// - `mediaContainerId` (required): The ID of the container created in the
+  ///   previous step (`createThreadContainer`), which holds the post's content.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a `String`, representing the ID of the
+  ///   published post (thread).
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while processing the response.
+  ///
+  /// ## API Reference:
+  /// - [Publish a Post](https://developers.facebook.com/docs/threads/posts#publish-post)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final threadId = await threadsMediaService.postThread(
+  ///   userId: '1234567890',
+  ///   mediaContainerId: 'container12345',
+  /// );
+  /// ```
   Future<String> postThread({
     required String userId,
     required String mediaContainerId,
   });
 
+  /// Reposts an existing media post (thread) by its unique post ID.
+  ///
+  /// This method allows you to repost an existing thread (post) on behalf of a
+  /// user. The `postId` is required to identify the thread that will be reposted.
+  ///
+  /// ## Parameters:
+  /// - `postId` (required): The unique identifier of the thread (post)
+  ///   that you want to repost.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a `String`, representing the ID of the reposted
+  ///   thread.
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while processing the response.
+  ///
+  /// ## API Reference:
+  /// - [Repost a Thread](https://developers.facebook.com/docs/threads/posts/reposts)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final repostId = await threadsMediaService.repostThread(
+  ///   postId: '9876543210',
+  /// );
+  /// ```
   Future<String> repostThread({
     required String postId,
   });
 
+  /// Retrieves a list of replies to a specific thread (post) by its unique post ID.
+  ///
+  /// This method fetches a paginated list of all top-level replies. Optionally, you can
+  /// specify a list of fields to customize the data included in the response.
+  ///
+  /// ## Parameters:
+  /// - `postId` (required): The unique identifier of the thread (post)
+  ///   whose replies are being requested.
+  /// - `fields` (optional): A list of `MediaFields` to define specific
+  ///   fields to include in the response. If no fields are specified, the
+  ///   API returns a default set of fields.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a list of `MediaPost` objects representing
+  ///   the replies to the thread.
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while processing the response.
+  ///
+  /// ## API Reference:
+  /// - [Get Replies to a Thread](https://developers.facebook.com/docs/threads/reply-management#get-replies)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final replies = await threadsMediaService.getReplies(
+  ///   postId: '1234567890',
+  ///   fields: [MediaFields.id, MediaFields.mediaType],
+  /// );
+  /// ```
   Future<List<MediaPost>> getReplies({
     required String postId,
     List<MediaFields>? fields,
   });
 
+  /// Retrieves a conversation thread for a specific post by its unique post ID.
+  ///
+  /// This method fetches a paginated and flattened list of all top-level and nested replies.
+  /// Optionally, you can pass a list of fields to customize
+  /// the data included in the response.
+  ///
+  /// ## Parameters:
+  /// - `postId` (required): The unique identifier of the thread (post)
+  ///   for which the conversation is being requested.
+  /// - `fields` (optional): A list of `MediaFields` to define specific
+  ///   fields to include in the response. If no fields are specified, the
+  ///   API returns a default set of fields.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a list of `MediaPost` objects representing
+  ///   the conversation (including replies and other related posts).
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while processing the response.
+  ///
+  /// ## API Reference:
+  /// - [Get Conversations for a Thread](https://developers.facebook.com/docs/threads/reply-management#get-conversations)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final conversation = await threadsMediaService.getConversations(
+  ///   postId: '1234567890',
+  ///   fields: [MediaFields.id, MediaFields.mediaType],
+  /// );
+  /// ```
   Future<List<MediaPost>> getConversations({
     required String postId,
     List<MediaFields>? fields,
   });
+
+  /// Retrieves media insights for a specific thread (post) by its unique post ID.
+  ///
+  /// This method fetches various engagement metrics, such as views, likes,
+  /// replies, reposts, and quotes, for a given post. Optionally, you can specify
+  /// which insights to retrieve by providing a list of `MediaInsightFields`.
+  ///
+  /// ## Parameters:
+  /// - `postId` (required): The unique identifier of the thread (post)
+  ///   for which media insights are being requested.
+  /// - `fields` (optional): A list of `MediaInsightFields` to define which
+  ///   specific insights to retrieve. If no fields are provided, a default set
+  ///   of metrics will be returned.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a `Map<String, dynamic>` where the keys
+  ///   are the insight field names (e.g., `views`, `likes`) and the values
+  ///   are the corresponding metric values.
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while processing the response.
+  ///
+  /// ## API Reference:
+  /// - [Get Media Insights](https://developers.facebook.com/docs/threads/insights)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final insights = await threadsMediaService.getMediaInsights(
+  ///   postId: '1234567890',
+  ///   fields: [MediaInsightFields.views, MediaInsightFields.likes],
+  /// );
+  /// ```
+  ///
+  /// Example returned map:
+  /// ```dart
+  /// {
+  ///   'views': 1500,
+  ///   'likes': 500,
+  ///   'replies': 30,
+  /// }
+  /// ```
 
   Future<Map<String, dynamic>> getMediaInsights({
     required String postId,
@@ -55,8 +321,6 @@ abstract class ThreadsMediaService {
 
 class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   _ThreadsMediaService({required super.accessToken});
-
-  /// Get the threads of a user.
 
   @override
   Future<List<MediaPost>> getUserThreads({
