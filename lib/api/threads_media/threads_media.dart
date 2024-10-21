@@ -3,6 +3,7 @@ import 'package:threads_api/api/models/fields.dart';
 import 'package:threads_api/api/models/media_insights.dart';
 import 'package:threads_api/api/models/media_post.dart';
 import 'package:threads_api/api/models/media_type.dart';
+import 'package:threads_api/api/models/threads_response.dart';
 
 abstract class ThreadsMediaService {
   factory ThreadsMediaService({required String accessToken}) =>
@@ -39,9 +40,10 @@ abstract class ThreadsMediaService {
   ///   fields: [MediaFields.id, MediaFields.mediaType, MediaFields.text],
   /// );
   /// ```
-  Future<List<MediaPost>> getUserThreads({
+  Future<ThreadsResponse<List<MediaPost>>> getUserThreads({
     required String userId,
     List<MediaFields>? fields,
+    int? limit,
   });
 
   /// Retrieves a single media post (thread) by its unique post ID.
@@ -231,9 +233,10 @@ abstract class ThreadsMediaService {
   ///   fields: [MediaFields.id, MediaFields.mediaType],
   /// );
   /// ```
-  Future<List<MediaPost>> getReplies({
+  Future<ThreadsResponse<List<MediaPost>>> getReplies({
     required String postId,
     List<MediaFields>? fields,
+    int? limit,
   });
 
   /// Retrieves a conversation thread for a specific post by its unique post ID.
@@ -267,9 +270,47 @@ abstract class ThreadsMediaService {
   ///   fields: [MediaFields.id, MediaFields.mediaType],
   /// );
   /// ```
-  Future<List<MediaPost>> getConversations({
+  Future<ThreadsResponse<List<MediaPost>>> getConversations({
     required String postId,
     List<MediaFields>? fields,
+    int? limit,
+  });
+
+  // Retrieves a list of all replies made by a specific user by their unique user ID.
+  ///
+  /// This method fetches all replies created by a user on Threads. Optionally,
+  /// you can specify which fields to include in the response by passing a list
+  /// of `MediaFields`.
+  ///
+  /// ## Parameters:
+  /// - `userId` (required): The unique identifier of the user whose replies
+  ///   are being requested.
+  /// - `fields` (optional): A list of `MediaFields` to define specific fields
+  ///   to include in the response. If no fields are specified, the API returns
+  ///   a default set of fields.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a list of `MediaPost` objects representing
+  ///   the replies made by the user.
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if an error occurs
+  ///   while processing the response.
+  ///
+  /// ## API Reference:
+  /// - [Retrieve a List of All a User’s Replies](https://developers.facebook.com/docs/threads/reply-management#retrieve-a-list-of-all-a-user-s-replies)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final replies = await threadsMediaService.getUserReplies(
+  ///   userId: '1234567890',
+  ///   fields: [MediaFields.id, MediaFields.message],
+  /// );
+  /// ```
+  Future<ThreadsResponse<List<MediaPost>>> getUserReplies({
+    required String userId,
+    List<MediaFields>? fields,
+    int? limit,
   });
 
   /// Retrieves media insights for a post by its ID.
@@ -298,20 +339,25 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   _ThreadsMediaService({required super.accessToken});
 
   @override
-  Future<List<MediaPost>> getUserThreads({
+  Future<ThreadsResponse<List<MediaPost>>> getUserThreads({
     required String userId,
     List<MediaFields>? fields,
+    int? limit,
   }) async {
     try {
       final response = await super.get(
           'https://graph.threads.net/v1.0/$userId/threads',
           queryParameters: {
             'fields': getFieldsParam(fields),
+            'limit': limit,
           });
 
-      return response.data['data']
-          .map<MediaPost>((thread) => MediaPost.fromJson(thread))
-          .toList();
+      return ThreadsResponse<List<MediaPost>>(
+          beforeCursor: response.data['paging']?['cursors']?['before'],
+          afterCursor: response.data['paging']?['cursors']?['after'],
+          data: response.data['data']
+              .map<MediaPost>((reply) => MediaPost.fromJson(reply))
+              .toList());
     } catch (e) {
       throw Exception('Failed to get user Threads $e');
     }
@@ -400,30 +446,35 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
   }
 
   @override
-  Future<List<MediaPost>> getReplies({
+  Future<ThreadsResponse<List<MediaPost>>> getReplies({
     required String postId,
     List<MediaFields>? fields,
+    int? limit,
   }) async {
     try {
       final response = await super.get(
         'https://graph.threads.net/v1.0/$postId/replies',
         queryParameters: {
           'fields': getFieldsParam(fields),
+          'limit': limit,
         },
       );
-
-      return response.data['data']
-          .map<MediaPost>((reply) => MediaPost.fromJson(reply))
-          .toList();
+      return ThreadsResponse<List<MediaPost>>(
+          beforeCursor: response.data['paging']?['cursors']?['before'],
+          afterCursor: response.data['paging']?['cursors']?['after'],
+          data: response.data['data']
+              .map<MediaPost>((reply) => MediaPost.fromJson(reply))
+              .toList());
     } catch (e) {
       throw Exception('Failed to fetch replies $e');
     }
   }
 
   @override
-  Future<List<MediaPost>> getConversations({
+  Future<ThreadsResponse<List<MediaPost>>> getConversations({
     required String postId,
     List<MediaFields>? fields,
+    int? limit,
   }) async {
     try {
       final response = await super.get(
@@ -433,11 +484,39 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
         },
       );
 
-      return response.data['data']
-          .map<MediaPost>((conversation) => MediaPost.fromJson(conversation))
-          .toList();
+      return ThreadsResponse<List<MediaPost>>(
+          beforeCursor: response.data['paging']?['cursors']?['before'],
+          afterCursor: response.data['paging']?['cursors']?['after'],
+          data: response.data['data']
+              .map<MediaPost>((reply) => MediaPost.fromJson(reply))
+              .toList());
     } catch (e) {
       throw Exception('Failed to fetch conversations $e');
+    }
+  }
+
+  @override
+  Future<ThreadsResponse<List<MediaPost>>> getUserReplies({
+    required String userId,
+    List<MediaFields>? fields,
+    int? limit,
+  }) async {
+    try {
+      final response = await super.get(
+        'https://graph.threads.net/v1.0/$userId/replies',
+        queryParameters: {
+          'fields': getFieldsParam(fields),
+        },
+      );
+
+      return ThreadsResponse<List<MediaPost>>(
+          beforeCursor: response.data['paging']?['cursors']?['before'],
+          afterCursor: response.data['paging']?['cursors']?['after'],
+          data: response.data['data']
+              .map<MediaPost>((reply) => MediaPost.fromJson(reply))
+              .toList());
+    } catch (e) {
+      throw Exception('Failed to retrieve user replies');
     }
   }
 
