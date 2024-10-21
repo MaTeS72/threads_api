@@ -12,7 +12,7 @@ void main() {
 }
 
 class Example extends StatefulWidget {
-  const Example({Key? key}) : super(key: key);
+  const Example({super.key});
 
   @override
   State<Example> createState() => _ExampleState();
@@ -28,9 +28,9 @@ class _ExampleState extends State<Example> {
     super.initState();
 
     client = ThreadsOAuthClient(
-      clientId: 'XXXXXXXXXXXX', // Replace with your app's client ID
+      clientId: '1234567889', // Replace with your app's client ID
       clientSecret:
-          'XXXXXXXXXXXXXXXXXXXXXXXX', // Replace with your app's client secret
+          'xxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your app's client secret
       redirectUri: 'com.example.oauth/redirect', // Your app's custom scheme
     );
   }
@@ -47,7 +47,7 @@ class _ExampleState extends State<Example> {
 
     final token = await client.exchangeForLongLivedToken(shortLiveToken);
     setState(() {
-      longLiveToken = token;
+      longLiveToken = token.accessToken;
     });
   }
 
@@ -68,11 +68,11 @@ class _ExampleState extends State<Example> {
 
   void refreshUserToken() async {
     const refreshToken =
-        'EXISTING_REFRESH_TOKEN'; // Use the saved refresh token
+        'EXISTING_LONG_LIVED_TOKEN'; // Use the saved refresh token
 
     final newTokenResponse = await client.refreshAccessToken(refreshToken);
 
-    print('New Access Token: ${newTokenResponse['access_token']}');
+    print('New Access Token: ${newTokenResponse.accessToken}');
   }
 
   @override
